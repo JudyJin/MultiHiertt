@@ -24,8 +24,10 @@ def evaluate_program_result(pred_prog, gold_prog):
 
 def evaluate_span_program_result(span_ans, prog_ans):
     span_ans = str(span_ans)
-    if str_to_num(span_ans) != "n/a":
+    prog_ans = str(prog_ans)
+    if str_to_num(span_ans) != "n/a" and str_to_num(prog_ans) != "n/a":
         span_ans = str_to_num(span_ans)
+        prog_ans = str_to_num(prog_ans)
         if math.isclose(prog_ans, span_ans, abs_tol= min(abs(min(prog_ans, span_ans) / 1000), 0.1)):
             exact_match, f1 = 1, 1
         else:

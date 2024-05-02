@@ -93,7 +93,7 @@ def convert_test(retriever_json_in, question_classification_json_in, json_out, t
         
         other_cands = []
 
-        while res_n > 0 and cur_len < max_len:
+        while res_n > 0 and cur_len < max_len and len(sorted_dict)>0:
             next_false_retrieved = sorted_dict.pop(0)
             if next_false_retrieved["score"] < 0:
                 break
@@ -109,7 +109,16 @@ def convert_test(retriever_json_in, question_classification_json_in, json_out, t
         
         # recover the original order in the document
         input_inds = other_cands
-        context = get_context(each_data, input_inds)
+        # put int value to the first
+        for ind in other_cands:
+            if type(ind) == int:
+                input_inds.remove(ind)
+                input_inds.insert(0, ind)
+                break
+        # print(input_inds)
+        print(input_inds) 
+        context = input_inds
+        # context = get_context(each_data, input_inds)
         each_data["model_input"] = context
 
         each_data["qa"]["predicted_question_type"] = qc_map[each_data["uid"]]
@@ -168,6 +177,7 @@ if __name__ == '__main__':
     
     topn, max_len = 10, 256
     
+    # mode_names = ["train", "test", "dev"]
     mode_names = ["dev"]
     for mode in mode_names:
         json_in = os.path.join(json_dir_in, f"{mode}.json")
@@ -178,9 +188,10 @@ if __name__ == '__main__':
         if mode == "train":
             convert_train(json_in, json_out_train, topn, max_len)
         if mode == "dev":
-            convert_train(json_in, json_out_train, topn, max_len)
+            # convert_train(json_in, json_out_train, topn, max_len)
             convert_test(json_in, question_classification_json_in, json_out_inference, topn, max_len)
         elif mode == "test":
             convert_test(json_in, question_classification_json_in, json_out_inference, topn, max_len)
         
         print(f"Convert {mode} set done")
+        
